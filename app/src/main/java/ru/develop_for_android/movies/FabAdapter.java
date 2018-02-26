@@ -1,6 +1,7 @@
 package ru.develop_for_android.movies;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -8,6 +9,16 @@ import uk.co.markormesher.android_fab.SpeedDialMenuAdapter;
 import uk.co.markormesher.android_fab.SpeedDialMenuItem;
 
 public class FabAdapter extends SpeedDialMenuAdapter {
+
+    private final CanChangeSortOrder listener;
+
+    private int itemColor;
+
+    FabAdapter(Context context, CanChangeSortOrder listener) {
+        this.listener = listener;
+        itemColor = ContextCompat.getColor(context, R.color.colorSecondary);
+    }
+
     @Override
     public int getCount() {
         return 2;
@@ -27,7 +38,24 @@ public class FabAdapter extends SpeedDialMenuAdapter {
     }
 
     @Override
+    public int getBackgroundColour(int position) {
+        return itemColor;
+    }
+
+    @Override
     public boolean onMenuItemClick(int position) {
-        return super.onMenuItemClick(position);
+        if (position == 0) {
+            listener.changeOrderTo(MoviesListLoader.SORT_BY_POPULARITY);
+            return true;
+        } else if (position == 1) {
+            listener.changeOrderTo(MoviesListLoader.SORT_BY_RATE);
+            return true;
+        } else {
+            return super.onMenuItemClick(position);
+        }
+    }
+
+    interface CanChangeSortOrder {
+        void changeOrderTo(int sortType);
     }
 }

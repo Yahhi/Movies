@@ -27,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:buttonPosition="bottom|end"
+        app:buttonBackgroundColour="@color/colorAccent"
         app:buttonIcon="@drawable/ic_sort"
         />
 

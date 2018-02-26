@@ -1,22 +1,16 @@
 package ru.develop_for_android.movies;
 
 import android.content.Intent;
-import android.content.Loader;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -28,7 +22,7 @@ import uk.co.markormesher.android_fab.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<JSONObject[]>,
-        MovieClick {
+        MovieClick, FabAdapter.CanChangeSortOrder {
 
     private static final int REQUEST_INVITE = 101;
     private static final String TAG = "FIREBASE";
@@ -39,6 +33,7 @@ public class MainActivity extends AppCompatActivity
 
     ProgressBar loadingIndicator;
     MovieListAdapter adapter;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +42,9 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setSpeedDialMenuAdapter(new FabAdapter());
+        fab = findViewById(R.id.fab);
+        fab.setSpeedDialMenuAdapter(new FabAdapter(this, this));
+        setFabIcon();
 
         loadingIndicator = findViewById(R.id.movies_loading_progress);
 
@@ -155,6 +151,21 @@ public class MainActivity extends AppCompatActivity
             } else {
                 return 2;
             }
+        }
+    }
+
+    @Override
+    public void changeOrderTo(int sortType) {
+        this.sortType = sortType;
+        setFabIcon();
+        loadMovieData();
+    }
+
+    private void setFabIcon() {
+        if (sortType == MoviesListLoader.SORT_BY_POPULARITY) {
+            fab.setButtonIconResource(R.drawable.ic_sort_with_people);
+        } else {
+            fab.setButtonIconResource(R.drawable.ic_sort_with_star);
         }
     }
 }

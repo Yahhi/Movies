@@ -18,8 +18,8 @@ import java.util.Scanner;
 
 public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
 
-    public static final int SORT_BY_POPULARITY = 1;
-    public static final int SORT_BY_RATE = 2;
+    static final int SORT_BY_POPULARITY = 1;
+    static final int SORT_BY_RATE = 2;
 
     private static final String TAG = "NETWORK";
 
@@ -47,13 +47,19 @@ public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
 
     @Override
     public JSONObject[] loadInBackground() {
+        String path;
+        if (sortType == SORT_BY_POPULARITY) {
+            path = "3/movie/popular";
+        } else {
+            path = "3/movie/top_rated";
+        }
         Uri uri = new Uri.Builder()
                 .scheme(protocol)
                 .authority(serverAddress)
-                .path("3/movie/popular")
+                .path(path)
                 .appendQueryParameter(PARAM_API_KEY, getContext().getString(R.string.mdb_key))
-                .appendQueryParameter(PARAM_LANG, Locale.getDefault().getDisplayLanguage())
-                .appendQueryParameter(PARAM_REGION, Locale.getDefault().getCountry())
+                .appendQueryParameter(PARAM_LANG, Locale.getDefault().getISO3Language())
+                .appendQueryParameter(PARAM_REGION, Locale.getDefault().getISO3Country())
                 .build();
 
         Log.i(TAG, "start loading url: " + uri.toString());
