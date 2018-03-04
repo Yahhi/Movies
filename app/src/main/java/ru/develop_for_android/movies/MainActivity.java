@@ -132,8 +132,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onMovieClick(int id) {
-        Log.i("CLICK", String.valueOf(id));
+    public void onMovieClick(Movie movie) {
+        Intent openDetails = new Intent(this, MovieDetailsActivity.class);
+        openDetails.putExtra(MovieDetailsActivity.ARGS_MOVIE, movie);
+        startActivity(openDetails);
     }
 
     public int getColumnsByDisplay() {

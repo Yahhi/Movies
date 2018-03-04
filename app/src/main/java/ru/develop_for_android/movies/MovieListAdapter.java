@@ -34,7 +34,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         try {
             Movie movie = new Movie(movieObjects[position]);
             holder.moviePoster.setContentDescription(movie.title);
-            holder.movieId = movie.id;
+            holder.movie = movie;
 
             Context context = holder.moviePoster.getContext();
             Picasso.with(context).load(movie.getPosterPath()).into(holder.moviePoster);
@@ -56,7 +56,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final ImageView moviePoster;
-        int movieId;
+        Movie movie;
 
         MovieViewHolder(View itemView) {
             super(itemView);
@@ -66,7 +66,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
         @Override
         public void onClick(View view) {
-            listener.onMovieClick(movieId);
+            listener.onMovieClick(movie);
         }
     }
 }

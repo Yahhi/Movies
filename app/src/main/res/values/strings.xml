@@ -6,4 +6,9 @@
     <string name="invitation_cta">Invite</string>
     <string name="movie_poster">Movie poster</string>
     <string name="invite_people">Invite people</string>
+    <string name="title_activity_movie_details">Movie Details</string>
+    <string name="release_date">Release date: %1$s</string>
+    <string name="language">Language: %1$s</string>
+    <string name="original_title">Original title: %1$s</string>
+    <string name="_10">/10</string>
 </resources>

@@ -1,10 +1,13 @@
 package ru.develop_for_android.movies;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Movie {
-    int id;
+public class Movie implements Parcelable{
+    private int id;
     private String posterPath;
     boolean adult;
     String overview;
@@ -45,7 +48,53 @@ public class Movie {
         voteAverage = object.getDouble(PARAM_VOTE_AVERAGE);
     }
 
+    protected Movie(Parcel in) {
+        id = in.readInt();
+        posterPath = in.readString();
+        adult = in.readByte() != 0;
+        overview = in.readString();
+        releaseDate = in.readString();
+        originalTitle = in.readString();
+        originalLanguage = in.readString();
+        title = in.readString();
+        popularity = in.readDouble();
+        voteCount = in.readInt();
+        voteAverage = in.readDouble();
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
     String getPosterPath() {
         return baseUrl + posterUrlPart + posterPath;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(posterPath);
+        parcel.writeByte((byte) (adult ? 1 : 0));
+        parcel.writeString(overview);
+        parcel.writeString(releaseDate);
+        parcel.writeString(originalTitle);
+        parcel.writeString(originalLanguage);
+        parcel.writeString(title);
+        parcel.writeDouble(popularity);
+        parcel.writeInt(voteCount);
+        parcel.writeDouble(voteAverage);
     }
 }

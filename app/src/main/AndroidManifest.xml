@@ -4,6 +4,7 @@
     package="ru.develop_for_android.movies">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,10 +22,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="android.support.VERSION"
             android:value="26.1.0"
-            tools:replace="android:value"
-            />
+            tools:replace="android:value" />
+
+        <activity
+            android:name=".MovieDetailsActivity"
+            android:label="@string/title_activity_movie_details"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ru.develop_for_android.movies.MainActivity" />
+        </activity>
     </application>
+
 </manifest>

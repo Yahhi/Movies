@@ -58,8 +58,8 @@ public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
                 .authority(serverAddress)
                 .path(path)
                 .appendQueryParameter(PARAM_API_KEY, getContext().getString(R.string.mdb_key))
-                .appendQueryParameter(PARAM_LANG, Locale.getDefault().getISO3Language())
-                .appendQueryParameter(PARAM_REGION, Locale.getDefault().getISO3Country())
+                .appendQueryParameter(PARAM_LANG, Locale.getDefault().getISO3Language().substring(0, 2))
+                .appendQueryParameter(PARAM_REGION, Locale.getDefault().getISO3Country().substring(0, 2))
                 .build();
 
         Log.i(TAG, "start loading url: " + uri.toString());
