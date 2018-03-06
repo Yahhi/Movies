@@ -9,15 +9,15 @@ import org.json.JSONObject;
 public class Movie implements Parcelable{
     private int id;
     private String posterPath;
-    boolean adult;
-    String overview;
-    String releaseDate;
-    String originalTitle;
-    String originalLanguage;
-    String title;
-    double popularity;
-    int voteCount;
-    double voteAverage;
+    private boolean adult;
+    public String overview;
+    public String releaseDate;
+    public String originalTitle;
+    public String originalLanguage;
+    public String title;
+    private double popularity;
+    private int voteCount;
+    private double voteAverage;
 
     private final static String baseUrl = "http://image.tmdb.org/t/p/";
     private final static String posterUrlPart = "w500/";
@@ -97,4 +97,14 @@ public class Movie implements Parcelable{
         parcel.writeInt(voteCount);
         parcel.writeDouble(voteAverage);
     }
+
+    public String getParamVoteAverage() {
+        return String.valueOf(voteAverage);
+    }
+
+    public String getParamVoteCount() {
+        return String.valueOf(voteCount);
+    }
+
+
 }
