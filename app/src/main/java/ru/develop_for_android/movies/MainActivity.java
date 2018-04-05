@@ -3,6 +3,7 @@ package ru.develop_for_android.movies;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -15,6 +16,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.appinvite.AppInviteInvitation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import org.json.JSONObject;
 
@@ -31,9 +36,12 @@ public class MainActivity extends AppCompatActivity
     private int sortType = MoviesListLoader.SORT_BY_POPULARITY;
     private static final String KEY_SORT_TYPE = "sort_type";
 
+    static final String RANDOM_KEY = "random_backdrop";
+
     ProgressBar loadingIndicator;
     MovieListAdapter adapter;
     FloatingActionButton fab;
+    FirebaseRemoteConfig config;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +49,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        config = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                .build();
+        config.setConfigSettings(configSettings);
+        config.setDefaults(R.xml.remote_config_defaults);
+        fetchSettings();
 
         fab = findViewById(R.id.fab);
         fab.setSpeedDialMenuAdapter(new FabAdapter(this, this));
@@ -55,6 +71,40 @@ public class MainActivity extends AppCompatActivity
         moviesList.setLayoutManager(new GridLayoutManager(this, columnsCount));
 
         loadMovieData();
+    }
+
+    private void fetchSettings() {
+        long cacheExpiration = 3600; // 1 hour in seconds.
+        // If your app is using developer mode, cacheExpiration is set to 0, so each fetch will
+        // retrieve values from the service.
+        if (config.getInfo().getConfigSettings().isDeveloperModeEnabled()) {
+            cacheExpiration = 0;
+        }
+
+        // [START fetch_config_with_callback]
+        // cacheExpirationSeconds is set to cacheExpiration here, indicating the next fetch request
+        // will use fetch data from the Remote Config service, rather than cached parameter values,
+        // if cached parameter values are more than cacheExpiration seconds old.
+        // See Best Practices in the README for more information.
+        config.fetch(cacheExpiration)
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MainActivity.this, "Fetch Succeeded",
+                                    Toast.LENGTH_SHORT).show();
+
+                            // After config data is successfully fetched, it must be activated before newly fetched
+                            // values are returned.
+                            config.activateFetched();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Fetch Failed",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        Log.i("REMOTE-CONFIG", "new " + config.getBoolean(RANDOM_KEY));
+                    }
+                });
+        // [END fetch_config_with_callback]
     }
 
     private void loadMovieData() {

@@ -8,4 +8,9 @@
     <color name="colorSecondaryLight">#ffd95b</color>
     <color name="colorSignsOnSecondary">#000000</color>
     <color name="colorAccent">#ff5722</color>
+
+    <color name="translucent_scrim_top">#63000000</color>
+    <color name="translucent_scrim_top_center">#2d000000</color>
+    <color name="translucent_scrim_bottom">#7d000000</color>
+    <color name="translucent_scrim_bottom_center">#32000000</color>
 </resources>

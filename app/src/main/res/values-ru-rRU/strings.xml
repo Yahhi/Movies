@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Movies</string>
+    <string name="action_settings">Настройки</string>
+    <string name="invitation_title">Рассказать о приложении</string>
+    <string name="invitation_message">Классное приложение</string>
+    <string name="invitation_cta">Пригласить</string>
+    <string name="movie_poster">Постер фильма</string>
+    <string name="invite_people">Пригласить друзей</string>
+    <string name="title_activity_movie_details">Описание фильма</string>
+    <string name="release_date">Премьера: %1$s</string>
+    <string name="original_title">Название в оригинале: %1$s</string>
+    <string name="language">Язык: %1$s</string>
+</resources>

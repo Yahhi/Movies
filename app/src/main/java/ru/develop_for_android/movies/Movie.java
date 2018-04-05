@@ -3,11 +3,17 @@ package ru.develop_for_android.movies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Locale;
+import java.util.Random;
+
 public class Movie implements Parcelable{
-    private int id;
+    int id;
     private String posterPath;
     private boolean adult;
     public String overview;
@@ -20,7 +26,8 @@ public class Movie implements Parcelable{
     private double voteAverage;
 
     private final static String baseUrl = "http://image.tmdb.org/t/p/";
-    private final static String posterUrlPart = "w500/";
+    private final static String posterUrlPart = "w500";
+    private final static String backdropUrlPart = "w780";
 
     private static final String PARAM_POSTER_PATH = "poster_path";
     private static final String PARAM_ADULT = "adult";
@@ -33,6 +40,12 @@ public class Movie implements Parcelable{
     private static final String PARAM_POPULARITY = "popularity";
     private static final String PARAM_VOTE_COUNT = "vote_count";
     private static final String PARAM_VOTE_AVERAGE = "vote_average";
+
+    private static final String PARAM_IMAGES = "images";
+    private static final String PARAM_BACKDROPS = "backdrops";
+    private static final String PARAM_IMAGE_PATH = "file_path";
+    private static final String PARAM_VIDEOS = "videos";
+    private static final String PARAM_REVIEWS = "reviews";
 
     Movie(JSONObject object) throws JSONException {
         id = object.getInt(PARAM_ID);
@@ -78,6 +91,11 @@ public class Movie implements Parcelable{
         return baseUrl + posterUrlPart + posterPath;
     }
 
+    public String getOriginalLanguageFullName() {
+        Locale locale = new Locale(originalLanguage);
+        return originalTitle + " (" + locale.getDisplayLanguage() + ")";
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -106,5 +124,30 @@ public class Movie implements Parcelable{
         return String.valueOf(voteCount);
     }
 
+    public static String getBackdropPath(JSONObject object) {
+        String path;
+        try {
+            JSONObject images = object.getJSONObject(PARAM_IMAGES);
+            JSONArray backdrops = images.getJSONArray(PARAM_BACKDROPS);
 
+            FirebaseRemoteConfig config = FirebaseRemoteConfig.getInstance();
+            int pictureIndex;
+            if (config.getBoolean(MainActivity.RANDOM_KEY)) {
+                Random random = new Random();
+                pictureIndex = random.nextInt(backdrops.length() - 1);
+            } else {
+                pictureIndex = 0;
+            }
+            JSONObject backdrop = backdrops.optJSONObject(pictureIndex);
+            path = backdrop.optString(PARAM_IMAGE_PATH, "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            path = "";
+        }
+        return path.equals("")?"":(baseUrl + backdropUrlPart + path);
+    }
+
+    /*public JSONObject[] getVideoObjects(JSONObject object) {
+
+    }*/
 }

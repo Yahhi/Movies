@@ -57,6 +57,7 @@
                 android:textAppearance="@android:style/TextAppearance.Material.Large"
                 app:layout_constraintStart_toEndOf="@+id/star"
                 app:layout_constraintTop_toTopOf="parent"
+                tools:text="3"
                 android:text="@{movie.paramVoteAverage}" />
 
             <TextView
@@ -68,22 +69,8 @@
                 app:layout_constraintEnd_toEndOf="@+id/details_max_rate"
                 app:layout_constraintStart_toStartOf="@+id/details_rate"
                 app:layout_constraintTop_toBottomOf="@+id/details_rate"
+                tools:text="152"
                 android:text="@{movie.paramVoteCount}" />
-
-            <ImageView
-                android:id="@+id/details_poster"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/movie_poster"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/guideline"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_launcher_background" />
 
             <TextView
                 android:id="@+id/details_release_date"
@@ -94,21 +81,10 @@
                 android:layout_marginTop="8dp"
                 android:layout_weight="1"
                 android:text="@{@string/release_date(movie.releaseDate)}"
+                tools:text="12-12-2018"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toBottomOf="@+id/details_counts_number" />
-
-            <TextView
-                android:id="@+id/details_language"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@{@string/language(movie.originalLanguage)}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline"
-                app:layout_constraintTop_toBottomOf="@+id/details_release_date" />
 
             <TextView
                 android:id="@+id/details_original_title"
@@ -117,17 +93,18 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@{@string/original_title(movie.originalTitle)}"
+                android:text="@{@string/original_title(movie.OriginalLanguageFullName)}"
+                tools:text="Original title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline"
-                app:layout_constraintTop_toBottomOf="@+id/details_language" />
+                app:layout_constraintTop_toBottomOf="@+id/details_release_date" />
 
             <android.support.constraint.Guideline
                 android:id="@+id/guideline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent ="0.5" />
+                app:layout_constraintGuide_percent="0.07" />
 
 
         </android.support.constraint.ConstraintLayout>
@@ -137,7 +114,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/text_margin"
+            tools:text="Long text about move. Lorem Ipsum!"
             android:text="@{movie.overview}" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/user_review_pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+        </android.support.v4.view.ViewPager>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/trailers_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
