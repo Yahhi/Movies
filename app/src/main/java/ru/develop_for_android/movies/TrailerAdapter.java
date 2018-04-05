@@ -6,20 +6,21 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-
 import ru.develop_for_android.movies.databinding.ListItemTrailerBinding;
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHolder> {
 
-    private ArrayList<YoutubeVideo> trailers = new ArrayList<>();
+    private YoutubeVideo[] trailers;
+    private TrailerPresenter clickListener;
 
-    TrailerAdapter(ArrayList<YoutubeVideo> initialTrailers) {
-        trailers.addAll(initialTrailers);
+    TrailerAdapter(YoutubeVideo[] initialTrailers, TrailerPresenter presenter) {
+        trailers = initialTrailers;
+        clickListener = presenter;
     }
 
+    @NonNull
     @Override
-    public TrailerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TrailerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         ListItemTrailerBinding binding = DataBindingUtil.inflate(
                 inflater, R.layout.list_item_trailer, parent, false);
@@ -27,13 +28,13 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
     }
 
     @Override
-    public void onBindViewHolder(TrailerViewHolder holder, int position) {
-        holder.bind(trailers.get(position));
+    public void onBindViewHolder(@NonNull TrailerViewHolder holder, int position) {
+        holder.bind(trailers[position]);
     }
 
     @Override
     public int getItemCount() {
-        return trailers.size();
+        return trailers.length;
     }
 
     class TrailerViewHolder extends RecyclerView.ViewHolder {
@@ -47,6 +48,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
 
         void bind(@NonNull YoutubeVideo video) {
             mBinding.setTrailer(video);
+            mBinding.setVariable(BR.presenter, clickListener);
         }
     }
 }

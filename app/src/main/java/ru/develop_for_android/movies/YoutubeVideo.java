@@ -1,9 +1,12 @@
 package ru.develop_for_android.movies;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class YoutubeVideo {
+public class YoutubeVideo implements Parcelable {
     String id;
     String language;
     String name;
@@ -21,6 +24,25 @@ public class YoutubeVideo {
         name = object.getString(PARAM_NAME);
     }
 
+    private YoutubeVideo(Parcel in) {
+        id = in.readString();
+        language = in.readString();
+        name = in.readString();
+        key = in.readString();
+    }
+
+    public static final Creator<YoutubeVideo> CREATOR = new Creator<YoutubeVideo>() {
+        @Override
+        public YoutubeVideo createFromParcel(Parcel in) {
+            return new YoutubeVideo(in);
+        }
+
+        @Override
+        public YoutubeVideo[] newArray(int size) {
+            return new YoutubeVideo[size];
+        }
+    };
+
     public String getName() {
         return name;
     }
@@ -28,4 +50,18 @@ public class YoutubeVideo {
     public String getKey() {
         return key;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(language);
+        parcel.writeString(name);
+        parcel.writeString(key);
+    }
+
 }

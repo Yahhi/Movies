@@ -1,6 +1,7 @@
 package ru.develop_for_android.movies;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,14 +24,15 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         this.listener = listener;
     }
 
+    @NonNull
     @Override
-    public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.listitem_movie, parent, false);
+    public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_movie, parent, false);
         return new MovieViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(MovieViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         try {
             Movie movie = new Movie(movieObjects[position]);
             holder.moviePoster.setContentDescription(movie.title);

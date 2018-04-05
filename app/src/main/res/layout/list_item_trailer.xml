@@ -5,8 +5,12 @@
         <variable
             name="trailer"
             type="ru.develop_for_android.movies.YoutubeVideo"/>
+        <variable
+            name="presenter"
+            type="ru.develop_for_android.movies.TrailerPresenter"/>
     </data>
 <android.support.constraint.ConstraintLayout
+    android:onClick="@{() -> presenter.onTrailerClick(trailer.key)}"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 

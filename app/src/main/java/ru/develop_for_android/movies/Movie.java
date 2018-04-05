@@ -18,8 +18,8 @@ public class Movie implements Parcelable{
     private boolean adult;
     public String overview;
     public String releaseDate;
-    public String originalTitle;
-    public String originalLanguage;
+    private String originalTitle;
+    private String originalLanguage;
     public String title;
     private double popularity;
     private int voteCount;
@@ -147,7 +147,14 @@ public class Movie implements Parcelable{
         return path.equals("")?"":(baseUrl + backdropUrlPart + path);
     }
 
-    /*public JSONObject[] getVideoObjects(JSONObject object) {
-
-    }*/
+    public static YoutubeVideo[] getTrailersList(JSONObject data) throws JSONException {
+        JSONObject videos = data.getJSONObject("videos");
+        JSONArray trailersJson = videos.getJSONArray("results");
+        YoutubeVideo[] trailersList = new YoutubeVideo[trailersJson.length()];
+        for (int i = 0; i < trailersJson.length(); i++) {
+            JSONObject trailerJson = trailersJson.getJSONObject(i);
+            trailersList[i] = new YoutubeVideo(trailerJson);
+        }
+        return trailersList;
+    }
 }
