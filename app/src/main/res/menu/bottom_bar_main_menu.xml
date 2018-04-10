@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_popular"
+        android:icon="@drawable/ic_people"
+        android:title="@string/most_popular" />
+    <item
+        android:id="@+id/action_highest"
+        android:icon="@drawable/ic_sort"
+        android:title="@string/highest_rated" />
+    <item
+        android:id="@+id/action_starred"
+        android:icon="@drawable/ic_star_bright"
+        android:title="@string/starred" />
+</menu>

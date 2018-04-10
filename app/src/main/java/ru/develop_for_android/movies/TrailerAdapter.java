@@ -18,6 +18,11 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         clickListener = presenter;
     }
 
+    TrailerAdapter(TrailerPresenter presenter) {
+        clickListener = presenter;
+        trailers = new YoutubeVideo[0];
+    }
+
     @NonNull
     @Override
     public TrailerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -30,6 +35,11 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
     @Override
     public void onBindViewHolder(@NonNull TrailerViewHolder holder, int position) {
         holder.bind(trailers[position]);
+    }
+
+    public void setTrailers(YoutubeVideo[] trailers) {
+        this.trailers = trailers;
+        notifyDataSetChanged();
     }
 
     @Override

@@ -44,8 +44,10 @@ public class Movie implements Parcelable{
     private static final String PARAM_IMAGES = "images";
     private static final String PARAM_BACKDROPS = "backdrops";
     private static final String PARAM_IMAGE_PATH = "file_path";
+
     private static final String PARAM_VIDEOS = "videos";
     private static final String PARAM_REVIEWS = "reviews";
+    private static final String PARAM_RESULTS = "results";
 
     Movie(JSONObject object) throws JSONException {
         id = object.getInt(PARAM_ID);
@@ -148,13 +150,18 @@ public class Movie implements Parcelable{
     }
 
     public static YoutubeVideo[] getTrailersList(JSONObject data) throws JSONException {
-        JSONObject videos = data.getJSONObject("videos");
-        JSONArray trailersJson = videos.getJSONArray("results");
+        JSONObject videos = data.getJSONObject(PARAM_VIDEOS);
+        JSONArray trailersJson = videos.getJSONArray(PARAM_RESULTS);
         YoutubeVideo[] trailersList = new YoutubeVideo[trailersJson.length()];
         for (int i = 0; i < trailersJson.length(); i++) {
             JSONObject trailerJson = trailersJson.getJSONObject(i);
             trailersList[i] = new YoutubeVideo(trailerJson);
         }
         return trailersList;
+    }
+
+    public static JSONArray getReviewsObject(JSONObject data) throws JSONException {
+        JSONObject fullObject = data.getJSONObject(PARAM_REVIEWS);
+        return fullObject.getJSONArray(PARAM_RESULTS);
     }
 }

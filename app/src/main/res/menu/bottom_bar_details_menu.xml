@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/bottom_info_action"
+        android:icon="@drawable/ic_info_outline"
+        android:title="@string/info" />
+    <item
+        android:id="@+id/bottom_video_action"
+        android:icon="@drawable/ic_play_circle_filled"
+        android:title="@string/video" />
+    <item
+        android:id="@+id/bottom_reviews_action"
+        android:icon="@drawable/ic_people_outline"
+        android:title="@string/reviews" />
+</menu>

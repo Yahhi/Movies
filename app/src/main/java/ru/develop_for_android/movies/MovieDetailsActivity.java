@@ -1,28 +1,28 @@
 package ru.develop_for_android.movies;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import ru.develop_for_android.movies.databinding.ActivityMovieDetailsBinding;
 
 public class MovieDetailsActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<JSONObject>, TrailerPresenter {
+        LoaderManager.LoaderCallbacks<JSONObject> {
 
     public static final String ARGS_MOVIE = "movie";
 
@@ -31,15 +31,19 @@ public class MovieDetailsActivity extends AppCompatActivity implements
     private Movie movie;
     private String backdropPath;
     private YoutubeVideo[] trailersList;
+    private ArrayList<Review> reviews;
+
+    private MovieDetailsTabAdapter tabAdapter;
 
     private final int MOVIE_LOADER_ID = 301;
     private final String KEY_MOVIE_ID = "movieId";
+
     private final String KEY_BACKDROP_PATH = "backdrop";
     private final String KEY_TRAILERS = "trailers";
+    private final String KEY_REVIEWS = "reviews";
 
     private static final String KEY_MOVIE = "movie";
 
-    private static final int REQUEST_VIDEO_PLAYBACK = 1234;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_movie_details);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_movie_details);
         setSupportActionBar(binding.toolbar);
+        reviews = new ArrayList<>();
 
         if (savedInstanceState == null) {
             movie = getIntent().getParcelableExtra(ARGS_MOVIE);
@@ -59,22 +64,15 @@ public class MovieDetailsActivity extends AppCompatActivity implements
                 backdropPath = savedInstanceState.getString(KEY_BACKDROP_PATH);
                 Picasso.with(getBaseContext()).load(backdropPath).into(binding.detailsBackdrop);
             }
-            if (savedInstanceState.containsKey(KEY_TRAILERS)) {
-                trailersList = (YoutubeVideo[]) savedInstanceState.getParcelableArray(KEY_TRAILERS);
-                setAdapter();
-            }
         }
-        showMovieData();
+        tabAdapter = new MovieDetailsTabAdapter(getSupportFragmentManager(), movie);
+        ViewPager viewPager = binding.contentMovieDetails.tabsView;
+        viewPager.setAdapter(tabAdapter);
+        setTitle(movie.title);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-    }
-
-    private void showMovieData() {
-        binding.setMovie(movie);
-        setTitle(movie.title);
-        Picasso.with(getBaseContext()).load(movie.getPosterPath()).into(binding.contentMovieDetails.detailsPoster);
     }
 
     @Override
@@ -85,6 +83,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         }
         if (trailersList != null) {
             outState.putParcelableArray(KEY_TRAILERS, trailersList);
+        }
+        if (reviews != null) {
+            outState.putParcelableArrayList(KEY_REVIEWS, reviews);
         }
         super.onSaveInstanceState(outState);
     }
@@ -103,7 +104,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements
 
     public void starMovie(View view) {
         Toast.makeText(getBaseContext(), "Replace with your own action", Toast.LENGTH_SHORT).show();
-
     }
 
     @NonNull
@@ -121,34 +121,23 @@ public class MovieDetailsActivity extends AppCompatActivity implements
 
         try {
             trailersList = Movie.getTrailersList(data);
-            if (trailersList.length > 0) {
-                setAdapter();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JSONArray reviewsJson = Movie.getReviewsObject(data);
+            for (int i = 0; i < reviewsJson.length(); i++) {
+                reviews.add(new Review(reviewsJson.getJSONObject(i)));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        tabAdapter.updateInfo(trailersList, reviews);
     }
-
-    private void setAdapter() {
-        TrailerAdapter adapter = new TrailerAdapter(trailersList, this);
-        RecyclerView recyclerView = binding.contentMovieDetails.trailersList;
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
-    }
-
     @Override
     public void onLoaderReset(@NonNull Loader<JSONObject> loader) {
 
-    }
-
-    @Override
-    public void onTrailerClick(String key) {
-        Log.i("VIDEO", "starting with key " + key);
-        Intent videoClient = new Intent(Intent.ACTION_VIEW);
-        videoClient.setData(Uri.parse("http://m.youtube.com/watch?v=" + key));
-        videoClient.putExtra("finish_on_ended", true);
-        //videoClient.putExtra("force_fullscreen", true);
-        startActivityForResult(videoClient, REQUEST_VIDEO_PLAYBACK);
     }
 }

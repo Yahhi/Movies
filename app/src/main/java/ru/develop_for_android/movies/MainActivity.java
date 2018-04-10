@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -23,11 +25,10 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import org.json.JSONObject;
 
-import uk.co.markormesher.android_fab.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<JSONObject[]>,
-        MovieClick, FabAdapter.CanChangeSortOrder {
+        MovieClick {
 
     private static final int REQUEST_INVITE = 101;
     private static final String TAG = "FIREBASE";
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity
 
     ProgressBar loadingIndicator;
     MovieListAdapter adapter;
-    FloatingActionButton fab;
     FirebaseRemoteConfig config;
 
     @Override
@@ -58,10 +58,6 @@ public class MainActivity extends AppCompatActivity
         config.setDefaults(R.xml.remote_config_defaults);
         fetchSettings();
 
-        fab = findViewById(R.id.fab);
-        fab.setSpeedDialMenuAdapter(new FabAdapter(this, this));
-        setFabIcon();
-
         loadingIndicator = findViewById(R.id.movies_loading_progress);
 
         RecyclerView moviesList = findViewById(R.id.movies_recycleview);
@@ -70,6 +66,23 @@ public class MainActivity extends AppCompatActivity
         int columnsCount = getColumnsByDisplay();
         moviesList.setLayoutManager(new GridLayoutManager(this, columnsCount));
 
+        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_popular:
+                        changeOrderTo(MoviesListLoader.SORT_BY_POPULARITY);
+                        break;
+                    case R.id.action_highest:
+                        changeOrderTo(MoviesListLoader.SORT_BY_RATE);
+                        break;
+                    case R.id.action_starred:
+                        break;
+                }
+                return true;
+            }
+        });
         loadMovieData();
     }
 
@@ -165,19 +178,22 @@ public class MainActivity extends AppCompatActivity
         startActivityForResult(intent, REQUEST_INVITE);
     }
 
+    @NonNull
     @Override
     public android.support.v4.content.Loader<JSONObject[]> onCreateLoader(int id, Bundle args) {
+        loadingIndicator.setVisibility(View.VISIBLE);
         int sortType = args.getInt(KEY_SORT_TYPE);
         return new MoviesListLoader<JSONObject[]>(this, sortType);
     }
 
     @Override
-    public void onLoadFinished(android.support.v4.content.Loader<JSONObject[]> loader, JSONObject[] data) {
+    public void onLoadFinished(@NonNull android.support.v4.content.Loader<JSONObject[]> loader, JSONObject[] data) {
+        loadingIndicator.setVisibility(View.GONE);
         adapter.updateList(data);
     }
 
     @Override
-    public void onLoaderReset(android.support.v4.content.Loader<JSONObject[]> loader) {
+    public void onLoaderReset(@NonNull android.support.v4.content.Loader<JSONObject[]> loader) {
 
     }
 
@@ -206,18 +222,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
     public void changeOrderTo(int sortType) {
         this.sortType = sortType;
-        setFabIcon();
         loadMovieData();
-    }
-
-    private void setFabIcon() {
-        if (sortType == MoviesListLoader.SORT_BY_POPULARITY) {
-            fab.setButtonIconResource(R.drawable.ic_sort_with_people);
-        } else {
-            fab.setButtonIconResource(R.drawable.ic_sort_with_star);
-        }
     }
 }

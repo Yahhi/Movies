@@ -23,14 +23,16 @@
 
     <include layout="@layout/content_main" />
 
-    <uk.co.markormesher.android_fab.FloatingActionButton
-        android:id="@+id/fab"
+    <android.support.design.widget.BottomNavigationView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/navigation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:buttonPosition="bottom|end"
-        app:buttonBackgroundColour="@color/colorAccent"
-        app:buttonIcon="@drawable/ic_sort"
-        />
-
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        app:itemIconTint="@drawable/color_for_selection"
+        app:itemTextColor="@drawable/color_for_selection"
+        app:itemBackground="@color/colorPrimary"
+        app:menu="@menu/bottom_bar_main_menu" />
 </android.support.design.widget.CoordinatorLayout>
 </layout>
