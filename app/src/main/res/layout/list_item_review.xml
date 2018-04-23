@@ -6,7 +6,7 @@
     <data>
         <variable
             name="review"
-            type="ru.develop_for_android.movies.Review"/>
+            type="ru.develop_for_android.movies.data_structures.Review"/>
     </data>
 <LinearLayout
     android:layout_width="match_parent"
@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         tools:text="Author"
         android:text="@{review.author}"
+        android:padding="8dp"
         android:textAppearance="@android:style/TextAppearance.Material.Subhead" />
 
     <TextView
@@ -27,6 +28,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@{review.content}"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp"
         tools:text="review text" />
 </LinearLayout>
 </layout>

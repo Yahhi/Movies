@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import ru.develop_for_android.movies.data_structures.YoutubeVideo;
 import ru.develop_for_android.movies.databinding.FragmentTrailersBinding;
 import timber.log.Timber;
 

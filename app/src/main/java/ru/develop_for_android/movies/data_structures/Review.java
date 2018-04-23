@@ -1,4 +1,4 @@
-package ru.develop_for_android.movies;
+package ru.develop_for_android.movies.data_structures;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -12,7 +12,7 @@ public class Review implements Parcelable {
     private static final String KEY_AUTHOR = "author";
     private static final String KEY_CONTENT = "content";
 
-    Review(JSONObject object) throws JSONException {
+    public Review(JSONObject object) throws JSONException {
         author = object.getString(KEY_AUTHOR);
         content = object.getString(KEY_CONTENT);
     }

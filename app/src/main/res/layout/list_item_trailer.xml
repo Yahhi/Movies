@@ -4,7 +4,7 @@
     <data>
         <variable
             name="trailer"
-            type="ru.develop_for_android.movies.YoutubeVideo"/>
+            type="ru.develop_for_android.movies.data_structures.YoutubeVideo"/>
         <variable
             name="presenter"
             type="ru.develop_for_android.movies.TrailerPresenter"/>

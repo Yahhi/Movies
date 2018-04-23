@@ -1,8 +1,11 @@
 package ru.develop_for_android.movies;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.LoaderManager;
@@ -24,24 +27,23 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import org.json.JSONObject;
 
+import ru.develop_for_android.movies.data_structures.Movie;
 import timber.log.Timber;
 
 
 public class MainActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<JSONObject[]>,
+        implements LoaderManager.LoaderCallbacks<Cursor>,
         MovieClick {
 
     private static final int REQUEST_INVITE = 101;
-    private static final String TAG = "FIREBASE";
     private static final int MOVIE_LOADER_ID = 110;
+    private static final int REQUEST_DETAILS = 501;
 
-    private int sortType = MoviesListLoader.SORT_BY_POPULARITY;
+    private int sortType;
     private static final String KEY_SORT_TYPE = "sort_type";
 
-    static final String RANDOM_KEY = "random_backdrop";
-
     ProgressBar loadingIndicator;
-    MovieListAdapter adapter;
+    MovieLocalListAdapter adapter;
     FirebaseRemoteConfig config;
 
     @Override
@@ -60,14 +62,32 @@ public class MainActivity extends AppCompatActivity
         fetchSettings();
 
         loadingIndicator = findViewById(R.id.movies_loading_progress);
+        if (savedInstanceState == null) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            sortType = preferences.getInt(KEY_SORT_TYPE, MoviesListLoader.SORT_BY_POPULARITY);
+            Timber.i("instance state missing");
+        } else {
+            sortType = savedInstanceState.getInt(KEY_SORT_TYPE);
+            Timber.i("instance state loaded");
+        }
 
         RecyclerView moviesList = findViewById(R.id.movies_recycleview);
-        adapter = new MovieListAdapter(this);
+        adapter = new MovieLocalListAdapter(this, Movie.getMovieListByType(getBaseContext(), sortType));
         moviesList.setAdapter(adapter);
         int columnsCount = getColumnsByDisplay();
         moviesList.setLayoutManager(new GridLayoutManager(this, columnsCount));
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
+        switch (sortType) {
+            case MoviesListLoader.SORT_BY_POPULARITY:
+                bottomNavigationView.setSelectedItemId(R.id.action_popular);
+                break;
+            case MoviesListLoader.SORT_BY_RATE:
+                bottomNavigationView.setSelectedItemId(R.id.action_highest);
+                break;
+            default:
+                bottomNavigationView.setSelectedItemId(R.id.action_starred);
+        }
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -79,12 +99,24 @@ public class MainActivity extends AppCompatActivity
                         changeOrderTo(MoviesListLoader.SORT_BY_RATE);
                         break;
                     case R.id.action_starred:
+                        changeOrderTo(MoviesListLoader.SORT_STARRED);
                         break;
                 }
                 return true;
             }
         });
         loadMovieData();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        SharedPreferences.Editor prefEditor = PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit();
+        prefEditor.putInt(KEY_SORT_TYPE, sortType);
+        prefEditor.apply();
+
+        outState.putInt(KEY_SORT_TYPE, sortType);
+        Timber.i("instance state saved");
+        super.onSaveInstanceState(outState);
     }
 
     private void fetchSettings() {
@@ -105,15 +137,11 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "Fetch Succeeded",
-                                    Toast.LENGTH_SHORT).show();
-
                             // After config data is successfully fetched, it must be activated before newly fetched
                             // values are returned.
                             config.activateFetched();
                         } else {
-                            Toast.makeText(MainActivity.this, "Fetch Failed",
-                                    Toast.LENGTH_SHORT).show();
+                            Timber.i("Config fetch Failed");
                         }
                     }
                 });
@@ -121,14 +149,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadMovieData() {
-        LoaderManager loaderManager = getSupportLoaderManager();
-        android.support.v4.content.Loader<JSONObject[]> moviesLoader = loaderManager.getLoader(MOVIE_LOADER_ID);
-        Bundle loadingBundle = new Bundle();
-        loadingBundle.putInt(KEY_SORT_TYPE, sortType);
-        if (moviesLoader == null) {
-            loaderManager.initLoader(MOVIE_LOADER_ID, loadingBundle, this);
+        if (sortType == MoviesListLoader.SORT_STARRED) {
+            adapter.updateList(Movie.getMovieListByType(getBaseContext(), sortType));
         } else {
-            loaderManager.restartLoader(MOVIE_LOADER_ID, loadingBundle, this);
+            LoaderManager loaderManager = getSupportLoaderManager();
+            android.support.v4.content.Loader<JSONObject[]> moviesLoader = loaderManager.getLoader(MOVIE_LOADER_ID);
+            Bundle loadingBundle = new Bundle();
+            loadingBundle.putInt(KEY_SORT_TYPE, sortType);
+            if (moviesLoader == null) {
+                loaderManager.initLoader(MOVIE_LOADER_ID, loadingBundle, this);
+            } else {
+                loaderManager.restartLoader(MOVIE_LOADER_ID, loadingBundle, this);
+            }
         }
     }
 
@@ -180,20 +212,20 @@ public class MainActivity extends AppCompatActivity
 
     @NonNull
     @Override
-    public android.support.v4.content.Loader<JSONObject[]> onCreateLoader(int id, Bundle args) {
+    public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
         loadingIndicator.setVisibility(View.VISIBLE);
         int sortType = args.getInt(KEY_SORT_TYPE);
-        return new MoviesListLoader<JSONObject[]>(this, sortType);
+        return new MoviesListLoader<Cursor>(this, sortType);
     }
 
     @Override
-    public void onLoadFinished(@NonNull android.support.v4.content.Loader<JSONObject[]> loader, JSONObject[] data) {
+    public void onLoadFinished(@NonNull android.support.v4.content.Loader<Cursor> loader, Cursor data) {
         loadingIndicator.setVisibility(View.GONE);
         adapter.updateList(data);
     }
 
     @Override
-    public void onLoaderReset(@NonNull android.support.v4.content.Loader<JSONObject[]> loader) {
+    public void onLoaderReset(@NonNull android.support.v4.content.Loader<Cursor> loader) {
 
     }
 
@@ -201,7 +233,7 @@ public class MainActivity extends AppCompatActivity
     public void onMovieClick(Movie movie) {
         Intent openDetails = new Intent(this, MovieDetailsActivity.class);
         openDetails.putExtra(MovieDetailsActivity.ARGS_MOVIE, movie);
-        startActivity(openDetails);
+        startActivityForResult(openDetails, REQUEST_DETAILS);
     }
 
     public int getColumnsByDisplay() {

@@ -7,6 +7,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.ArrayList;
 
+import ru.develop_for_android.movies.data_structures.Movie;
+import ru.develop_for_android.movies.data_structures.Review;
+import ru.develop_for_android.movies.data_structures.YoutubeVideo;
+
 public class MovieDetailsTabAdapter extends FragmentPagerAdapter {
     private MovieDetailsFragment detailsFragment;
     private TrailersFragment trailersFragment;

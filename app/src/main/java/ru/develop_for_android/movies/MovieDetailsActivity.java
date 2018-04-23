@@ -8,7 +8,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -18,6 +17,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import ru.develop_for_android.movies.data_structures.Movie;
+import ru.develop_for_android.movies.data_structures.Review;
+import ru.develop_for_android.movies.data_structures.YoutubeVideo;
 import ru.develop_for_android.movies.databinding.ActivityMovieDetailsBinding;
 import timber.log.Timber;
 
@@ -72,11 +74,25 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         tabAdapter = new MovieDetailsTabAdapter(getSupportFragmentManager(), movie);
         ViewPager viewPager = binding.contentMovieDetails.tabsView;
         viewPager.setAdapter(tabAdapter);
-        setTitle(movie.title);
+        this.setTitle(movie.title);
+
+        if (movie.starred) {
+            makeFabAccented();
+        } else {
+            makeFabCommon();
+        }
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    private void makeFabAccented() {
+        binding.fab.setImageResource(R.drawable.ic_star_accented);
+    }
+
+    private void makeFabCommon() {
+        binding.fab.setImageResource(R.drawable.ic_star);
     }
 
     @Override
@@ -102,7 +118,13 @@ public class MovieDetailsActivity extends AppCompatActivity implements
     }
 
     public void starMovie(View view) {
-        Toast.makeText(getBaseContext(), "Replace with your own action", Toast.LENGTH_SHORT).show();
+        if (movie.starred) {
+            makeFabCommon();
+            movie.saveUnstarredMovie(getBaseContext());
+        } else {
+            makeFabAccented();
+            movie.saveStarredMovie(getBaseContext());
+        }
     }
 
     @NonNull

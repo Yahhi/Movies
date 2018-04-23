@@ -5,7 +5,7 @@
     <data>
         <variable
             name="movie"
-            type="ru.develop_for_android.movies.Movie"/>
+            type="ru.develop_for_android.movies.data_structures.Movie"/>
     </data>
 <android.support.v4.widget.NestedScrollView
     android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_weight="1"
-                android:text="@{@string/release_date(movie.releaseDate)}"
+                android:text="@{@string/release_date(movie.getReleaseDateString)}"
                 tools:text="12-12-2018"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline"

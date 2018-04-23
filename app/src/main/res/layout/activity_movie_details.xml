@@ -67,6 +67,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
         android:onClick="starMovie"
+        app:backgroundTint="@color/colorPrimaryDark"
         app:fabSize="normal"
         app:layout_anchor="@+id/content_movie_details"
         app:layout_anchorGravity="bottom|end"

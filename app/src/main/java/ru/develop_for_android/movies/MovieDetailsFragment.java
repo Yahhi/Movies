@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.squareup.picasso.Picasso;
 
+import ru.develop_for_android.movies.data_structures.Movie;
 import ru.develop_for_android.movies.databinding.FragmentMovieDetailsBinding;
 
 /**

@@ -1,4 +1,4 @@
-package ru.develop_for_android.movies;
+package ru.develop_for_android.movies.data_structures;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -7,9 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class YoutubeVideo implements Parcelable {
-    String id;
-    String language;
-    String name;
+    private String id;
+    private String language;
+    private String name;
     private String key;
 
     private static final String PARAM_ID = "id";

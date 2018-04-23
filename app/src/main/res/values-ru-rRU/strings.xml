@@ -11,4 +11,10 @@
     <string name="release_date">Премьера: %1$s</string>
     <string name="original_title">Название в оригинале: %1$s</string>
     <string name="language">Язык: %1$s</string>
+    <string name="reviews">Обзоры</string>
+    <string name="video">Видео</string>
+    <string name="info">Информация</string>
+    <string name="starred">Понравились</string>
+    <string name="most_popular">Популярные</string>
+    <string name="highest_rated">Лучшие</string>
 </resources>

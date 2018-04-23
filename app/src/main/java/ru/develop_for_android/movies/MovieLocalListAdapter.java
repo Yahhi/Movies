@@ -1,6 +1,7 @@
 package ru.develop_for_android.movies;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,17 +11,16 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import ru.develop_for_android.movies.data_structures.Movie;
 
 
-public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieViewHolder> {
+public class MovieLocalListAdapter extends RecyclerView.Adapter<MovieLocalListAdapter.MovieViewHolder> {
 
-    private JSONObject[] movieObjects;
+    private Cursor movies;
     private MovieClick listener;
 
-    MovieListAdapter(MovieClick listener) {
-        this.movieObjects = new JSONObject[0];
+    MovieLocalListAdapter(MovieClick listener, Cursor cursor) {
+        this.movies = cursor;
         this.listener = listener;
     }
 
@@ -33,25 +33,26 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        try {
-            Movie movie = new Movie(movieObjects[position]);
-            holder.moviePoster.setContentDescription(movie.title);
-            holder.movie = movie;
+        movies.moveToPosition(position);
+        Movie movie = Movie.loadMovieFromCursor(movies);
 
-            Context context = holder.moviePoster.getContext();
-            Picasso.with(context).load(movie.getPosterPath()).into(holder.moviePoster);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        holder.moviePoster.setContentDescription(movie.title);
+        holder.movie = movie;
+
+        Context context = holder.moviePoster.getContext();
+        Picasso.with(context).load(movie.getPosterPath()).into(holder.moviePoster);
     }
 
     @Override
     public int getItemCount() {
-        return movieObjects.length;
+        return movies.getCount();
     }
 
-    void updateList(JSONObject[] movieObjects) {
-        this.movieObjects = movieObjects;
+    void updateList(Cursor cursor) {
+        if (movies != null) {
+            movies.close();
+        }
+        this.movies = cursor;
         notifyDataSetChanged();
     }
 

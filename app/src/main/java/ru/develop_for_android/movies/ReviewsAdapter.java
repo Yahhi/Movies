@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import ru.develop_for_android.movies.data_structures.Review;
 import ru.develop_for_android.movies.databinding.ListItemReviewBinding;
 
 public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewViewHolder> {

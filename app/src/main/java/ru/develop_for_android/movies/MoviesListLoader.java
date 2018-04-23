@@ -1,6 +1,7 @@
 package ru.develop_for_android.movies;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.content.AsyncTaskLoader;
 
@@ -15,12 +16,14 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.Scanner;
 
+import ru.develop_for_android.movies.data_structures.Movie;
 import timber.log.Timber;
 
-public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
+public class MoviesListLoader<T> extends AsyncTaskLoader<Cursor> {
 
-    static final int SORT_BY_POPULARITY = 1;
-    static final int SORT_BY_RATE = 2;
+    public static final int SORT_BY_POPULARITY = 1;
+    public static final int SORT_BY_RATE = 2;
+    public static final int SORT_STARRED = 3;
 
     private static final String TAG = "NETWORK";
 
@@ -47,7 +50,7 @@ public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
     }
 
     @Override
-    public JSONObject[] loadInBackground() {
+    public Cursor loadInBackground() {
         String path;
         if (sortType == SORT_BY_POPULARITY) {
             path = "3/movie/popular";
@@ -64,25 +67,33 @@ public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
                 .build();
 
         Timber.i("start loading url: %s", uri.toString());
-        JSONObject[] movieObjects;
         try {
             String response = getResponseFromHttpUrl(new URL(uri.toString()));
+            if (sortType == SORT_BY_POPULARITY) {
+                Movie.clearPopularList(getContext());
+            } else {
+                Movie.clearHighestList(getContext());
+            }
             try {
                 JSONObject fullObject = new JSONObject(response);
                 JSONArray results = fullObject.getJSONArray(PARAM_RESULTS);
-                movieObjects = new JSONObject[results.length()];
-                for (int i = 0; i < movieObjects.length; i++) {
-                    movieObjects[i] = results.getJSONObject(i);
+                for (int i = 0; i < results.length(); i++) {
+                    JSONObject movieObject = results.getJSONObject(i);
+                    Movie movie = new Movie(movieObject);
+                    if (sortType == SORT_BY_POPULARITY) {
+                        movie.saveMovieInPopularList(getContext(), i + 1);
+                    } else {
+                        movie.saveMovieInHighestList(getContext(), i + 1);
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                movieObjects = new JSONObject[0];
             }
         } catch (IOException e) {
             e.printStackTrace();
-            movieObjects = new JSONObject[0];
         }
-        return movieObjects;
+
+        return Movie.getMovieListByType(getContext(), sortType);
     }
 
     private String getResponseFromHttpUrl(URL url) throws IOException {

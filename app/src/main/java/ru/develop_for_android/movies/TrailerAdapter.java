@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import ru.develop_for_android.movies.data_structures.YoutubeVideo;
 import ru.develop_for_android.movies.databinding.ListItemTrailerBinding;
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHolder> {
