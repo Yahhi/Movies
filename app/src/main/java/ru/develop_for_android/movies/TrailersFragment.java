@@ -8,12 +8,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import ru.develop_for_android.movies.databinding.FragmentTrailersBinding;
+import timber.log.Timber;
 
 
 /**
@@ -44,6 +44,7 @@ public class TrailersFragment extends Fragment implements TrailerPresenter {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Timber.i("onCreate in fragment");
         if (getArguments() == null) {
             if (savedInstanceState == null) {
                 adapter = new TrailerAdapter(this);
@@ -60,6 +61,7 @@ public class TrailersFragment extends Fragment implements TrailerPresenter {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Timber.i( "onCreateView in fragment");
         binding = DataBindingUtil.inflate(inflater,
                 R.layout.fragment_trailers, container, false);
         binding.trailersList.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -69,7 +71,7 @@ public class TrailersFragment extends Fragment implements TrailerPresenter {
 
     @Override
     public void onTrailerClick(String key) {
-        Log.i("VIDEO", "starting with key " + key);
+        Timber.i("video is starting with key %s", key);
         Intent videoClient = new Intent(Intent.ACTION_VIEW);
         videoClient.setData(Uri.parse("http://m.youtube.com/watch?v=" + key));
         videoClient.putExtra("finish_on_ended", true);

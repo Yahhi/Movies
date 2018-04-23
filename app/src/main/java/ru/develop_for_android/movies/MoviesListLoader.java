@@ -3,7 +3,6 @@ package ru.develop_for_android.movies;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v4.content.AsyncTaskLoader;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +14,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Scanner;
+
+import timber.log.Timber;
 
 public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
 
@@ -37,7 +38,7 @@ public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
     MoviesListLoader(Context context, int sortType) {
         super(context);
         this.sortType = sortType;
-        Log.i(TAG, "class instantiated");
+        Timber.i("class instantiated");
     }
 
     @Override
@@ -62,7 +63,7 @@ public class MoviesListLoader<T> extends AsyncTaskLoader<JSONObject[]> {
                 .appendQueryParameter(PARAM_REGION, Locale.getDefault().getISO3Country().substring(0, 2))
                 .build();
 
-        Log.i(TAG, "start loading url: " + uri.toString());
+        Timber.i("start loading url: %s", uri.toString());
         JSONObject[] movieObjects;
         try {
             String response = getResponseFromHttpUrl(new URL(uri.toString()));

@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +23,8 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import org.json.JSONObject;
+
+import timber.log.Timber;
 
 
 public class MainActivity extends AppCompatActivity
@@ -114,7 +115,6 @@ public class MainActivity extends AppCompatActivity
                             Toast.makeText(MainActivity.this, "Fetch Failed",
                                     Toast.LENGTH_SHORT).show();
                         }
-                        Log.i("REMOTE-CONFIG", "new " + config.getBoolean(RANDOM_KEY));
                     }
                 });
         // [END fetch_config_with_callback]
@@ -155,14 +155,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
+        Timber.i("onActivityResult: requestCode=%s, resultCode=%s", requestCode, resultCode);
 
         if (requestCode == REQUEST_INVITE) {
             if (resultCode == RESULT_OK) {
                 // Get the invitation IDs of all sent messages
                 String[] ids = AppInviteInvitation.getInvitationIds(resultCode, data);
                 for (String id : ids) {
-                    Log.i(TAG, "onActivityResult: sent invitation " + id);
+                    Timber.i( "onActivityResult: sent invitation %s", id);
                 }
             } else {
                 Toast.makeText(this, "Failed to send invitation", Toast.LENGTH_SHORT).show();

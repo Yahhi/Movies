@@ -7,7 +7,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -20,6 +19,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import ru.develop_for_android.movies.databinding.ActivityMovieDetailsBinding;
+import timber.log.Timber;
 
 public class MovieDetailsActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<JSONObject> {
@@ -36,6 +36,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements
     private MovieDetailsTabAdapter tabAdapter;
 
     private final int MOVIE_LOADER_ID = 301;
+    private boolean wasLoaded = false;
     private final String KEY_MOVIE_ID = "movieId";
 
     private final String KEY_BACKDROP_PATH = "backdrop";
@@ -47,6 +48,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Timber.i("onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_movie_details);
@@ -54,11 +56,13 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         reviews = new ArrayList<>();
 
         if (savedInstanceState == null) {
+            Timber.i( "instance state null");
             movie = getIntent().getParcelableExtra(ARGS_MOVIE);
             if (movie != null) {
                 loadMovieData(movie.id);
             }
         } else {
+            Timber.i("loading state");
             movie = savedInstanceState.getParcelable(KEY_MOVIE);
             if (savedInstanceState.containsKey(KEY_BACKDROP_PATH)) {
                 backdropPath = savedInstanceState.getString(KEY_BACKDROP_PATH);
@@ -81,16 +85,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         if (backdropPath != null) {
             outState.putString(KEY_BACKDROP_PATH, backdropPath);
         }
-        if (trailersList != null) {
-            outState.putParcelableArray(KEY_TRAILERS, trailersList);
-        }
-        if (reviews != null) {
-            outState.putParcelableArrayList(KEY_REVIEWS, reviews);
-        }
         super.onSaveInstanceState(outState);
     }
 
     private void loadMovieData(int movieId) {
+        Timber.i("start loading info");
         LoaderManager loaderManager = getSupportLoaderManager();
         android.support.v4.content.Loader<JSONObject> moviesLoader = loaderManager.getLoader(MOVIE_LOADER_ID);
         Bundle loadingBundle = new Bundle();
@@ -115,29 +114,34 @@ public class MovieDetailsActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(@NonNull Loader<JSONObject> loader, JSONObject data) {
-        backdropPath = Movie.getBackdropPath(data);
-        Log.i("PICASSO", backdropPath);
-        Picasso.with(getBaseContext()).load(backdropPath).into(binding.detailsBackdrop);
+        if (!wasLoaded) {
+            wasLoaded = true;
+            backdropPath = Movie.getBackdropPath(data);
+            Timber.i("PICASSO %s", backdropPath);
+            Picasso.with(getBaseContext()).load(backdropPath).into(binding.detailsBackdrop);
 
-        try {
-            trailersList = Movie.getTrailersList(data);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            JSONArray reviewsJson = Movie.getReviewsObject(data);
-            for (int i = 0; i < reviewsJson.length(); i++) {
-                reviews.add(new Review(reviewsJson.getJSONObject(i)));
+            try {
+                trailersList = Movie.getTrailersList(data);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
-        tabAdapter.updateInfo(trailersList, reviews);
+            try {
+                JSONArray reviewsJson = Movie.getReviewsObject(data);
+                for (int i = 0; i < reviewsJson.length(); i++) {
+                    reviews.add(new Review(reviewsJson.getJSONObject(i)));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            tabAdapter.updateInfo(trailersList, reviews);
+        }
     }
     @Override
     public void onLoaderReset(@NonNull Loader<JSONObject> loader) {
 
     }
+
+
 }
