@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 import ru.develop_for_android.movies.data_structures.Movie;
+import timber.log.Timber;
 
 
 public class MovieLocalListAdapter extends RecyclerView.Adapter<MovieLocalListAdapter.MovieViewHolder> {
@@ -33,6 +34,7 @@ public class MovieLocalListAdapter extends RecyclerView.Adapter<MovieLocalListAd
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+        Timber.i("position in list is %d", position);
         movies.moveToPosition(position);
         Movie movie = Movie.loadMovieFromCursor(movies);
 
@@ -45,13 +47,16 @@ public class MovieLocalListAdapter extends RecyclerView.Adapter<MovieLocalListAd
 
     @Override
     public int getItemCount() {
-        return movies.getCount();
+        if (movies == null) {
+            Timber.i("list count is 0");
+            return 0;
+        } else {
+            Timber.i("list count is %d", movies.getCount());
+            return movies.getCount();
+        }
     }
 
     void updateList(Cursor cursor) {
-        if (movies != null) {
-            movies.close();
-        }
         this.movies = cursor;
         notifyDataSetChanged();
     }

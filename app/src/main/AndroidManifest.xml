@@ -39,6 +39,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ru.develop_for_android.movies.MainActivity" />
         </activity>
+
+        <provider
+            android:authorities="ru.develop-for-android.movies"
+            android:name=".data_structures.MovieProvider"
+            android:exported="false" />
+        <service android:name=".MoviesListLoader" />
     </application>
 
 </manifest>

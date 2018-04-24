@@ -1,9 +1,7 @@
 package ru.develop_for_android.movies.data_structures;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -19,17 +17,14 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
-import ru.develop_for_android.movies.MoviesListLoader;
-
 import static ru.develop_for_android.movies.data_structures.MovieContract.MovieEntry;
-import static ru.develop_for_android.movies.data_structures.MovieContract.columnsArray;
 import static ru.develop_for_android.movies.data_structures.MovieContract.columnsMap;
 
 public class Movie implements Parcelable{
     public int id;
     private String posterPath;
     private boolean adult;
-    public String overview;
+    private String overview;
     private Date releaseDate;
     private String originalTitle;
     private String originalLanguage;
@@ -39,7 +34,7 @@ public class Movie implements Parcelable{
     private double voteAverage;
     public boolean starred;
 
-    static final String RANDOM_KEY = "random_backdrop";
+    private static final String RANDOM_KEY = "random_backdrop";
 
     private final static String baseUrl = "http://image.tmdb.org/t/p/";
     private final static String posterUrlPart = "w500";
@@ -98,46 +93,9 @@ public class Movie implements Parcelable{
         return format.format(releaseDate);
     }
 
-    public void saveStarredMovie(Context context) {
-        starred = true;
-        ContentValues values = getContentValues();
-        values.put(MovieEntry.COLUMN_STARRED, 1);
-        saveMovie(context, values);
-    }
-
-    public void saveUnstarredMovie(Context context) {
-        starred = false;
-        ContentValues values = getContentValues();
-        values.put(MovieEntry.COLUMN_STARRED, 0);
-        saveMovie(context, values);
-    }
-
-    public void saveMovieInPopularList(Context context, int positionInList) {
-        ContentValues values = getContentValues();
-        values.put(MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST, positionInList);
-        saveMovie(context, values);
-    }
-
-    public void saveMovieInHighestList(Context context, int positionInList) {
-        ContentValues values = getContentValues();
-        values.put(MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST, positionInList);
-        saveMovie(context, values);
-
-    }
-
-    private void saveMovie(Context context, ContentValues values) {
-        SQLiteDatabase database = DBHelper.getHelper(context).getWritableDatabase();
-        if (movieAlreadySaved(database)) {
-            database.update(MovieEntry.TABLE_NAME, values, MovieEntry._ID + "=?",
-                    new String[]{String.valueOf(id)});
-        } else {
-            values.put(MovieEntry._ID, id);
-            database.insert(MovieEntry.TABLE_NAME, "", values);
-        }
-    }
-
-    private ContentValues getContentValues() {
+    public ContentValues getContentValues() {
         ContentValues values = new ContentValues();
+        values.put(MovieEntry._ID, id);
         values.put(MovieEntry.COLUMN_TITLE, title);
         values.put(MovieEntry.COLUMN_ADULT, adult? 1:0);
         values.put(MovieEntry.COLUMN_ORIGINAL_LANGUAGE, originalLanguage);
@@ -149,15 +107,6 @@ public class Movie implements Parcelable{
         values.put(MovieEntry.COLUMN_VOTE_AVERAGE, voteAverage);
         values.put(MovieEntry.COLUMN_VOTE_COUNT, voteCount);
         return values;
-    }
-
-    private boolean movieAlreadySaved(SQLiteDatabase database) {
-        Cursor cursor = database.query(MovieEntry.TABLE_NAME, columnsArray,
-                MovieEntry._ID + "=?", new String[]{String.valueOf(id)},
-                null, null, null);
-        boolean result = cursor.getCount() > 0;
-        cursor.close();
-        return result;
     }
 
     public static Movie loadMovieFromCursor(Cursor cursor) {
@@ -279,42 +228,5 @@ public class Movie implements Parcelable{
     public static JSONArray getReviewsObject(JSONObject data) throws JSONException {
         JSONObject fullObject = data.getJSONObject(PARAM_REVIEWS);
         return fullObject.getJSONArray(PARAM_RESULTS);
-    }
-
-    public static void clearPopularList(Context context) {
-        SQLiteDatabase database = DBHelper.getHelper(context).getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST, 0);
-        database.update(MovieEntry.TABLE_NAME, values,
-                MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST + " > 0", null);
-    }
-
-    public static void clearHighestList(Context context) {
-        SQLiteDatabase database = DBHelper.getHelper(context).getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST, 0);
-        database.update(MovieEntry.TABLE_NAME, values,
-                MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST + " > 0", null);
-
-    }
-
-    public static Cursor getMovieListByType(Context context, int sortType) {
-        SQLiteDatabase database = DBHelper.getHelper(context).getReadableDatabase();
-        String selection, ordering;
-        switch (sortType) {
-            case MoviesListLoader.SORT_BY_POPULARITY:
-                selection = MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST + " > 0";
-                ordering = MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST;
-                break;
-            case MoviesListLoader.SORT_BY_RATE:
-                selection = MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST + " > 0";
-                ordering = MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST;
-                break;
-            default:
-                selection = MovieEntry.COLUMN_STARRED + " > 0";
-                ordering = MovieEntry.COLUMN_TITLE;
-        }
-        return database.query(MovieEntry.TABLE_NAME, MovieContract.columnsArray, selection,
-                null, null, null, ordering);
     }
 }

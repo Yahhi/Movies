@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,8 +28,14 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import org.json.JSONObject;
 
+import java.util.Date;
+
 import ru.develop_for_android.movies.data_structures.Movie;
+import ru.develop_for_android.movies.data_structures.MovieContract;
 import timber.log.Timber;
+
+import static ru.develop_for_android.movies.MoviesListLoader.KEY_LAST_HIGHEST_UPDATE_TIME;
+import static ru.develop_for_android.movies.MoviesListLoader.KEY_LAST_POPULAR_UPDATE_TIME;
 
 
 public class MainActivity extends AppCompatActivity
@@ -72,7 +79,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         RecyclerView moviesList = findViewById(R.id.movies_recycleview);
-        adapter = new MovieLocalListAdapter(this, Movie.getMovieListByType(getBaseContext(), sortType));
+        adapter = new MovieLocalListAdapter(this, null);
         moviesList.setAdapter(adapter);
         int columnsCount = getColumnsByDisplay();
         moviesList.setLayoutManager(new GridLayoutManager(this, columnsCount));
@@ -149,18 +156,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadMovieData() {
-        if (sortType == MoviesListLoader.SORT_STARRED) {
-            adapter.updateList(Movie.getMovieListByType(getBaseContext(), sortType));
+        LoaderManager loaderManager = getSupportLoaderManager();
+        android.support.v4.content.Loader<JSONObject[]> moviesLoader = loaderManager.getLoader(MOVIE_LOADER_ID);
+        Bundle loadingBundle = new Bundle();
+        loadingBundle.putInt(KEY_SORT_TYPE, sortType);
+        if (moviesLoader == null) {
+            loaderManager.initLoader(MOVIE_LOADER_ID, loadingBundle, this);
         } else {
-            LoaderManager loaderManager = getSupportLoaderManager();
-            android.support.v4.content.Loader<JSONObject[]> moviesLoader = loaderManager.getLoader(MOVIE_LOADER_ID);
-            Bundle loadingBundle = new Bundle();
-            loadingBundle.putInt(KEY_SORT_TYPE, sortType);
-            if (moviesLoader == null) {
-                loaderManager.initLoader(MOVIE_LOADER_ID, loadingBundle, this);
-            } else {
-                loaderManager.restartLoader(MOVIE_LOADER_ID, loadingBundle, this);
-            }
+            loaderManager.restartLoader(MOVIE_LOADER_ID, loadingBundle, this);
         }
     }
 
@@ -215,7 +218,25 @@ public class MainActivity extends AppCompatActivity
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
         loadingIndicator.setVisibility(View.VISIBLE);
         int sortType = args.getInt(KEY_SORT_TYPE);
-        return new MoviesListLoader<Cursor>(this, sortType);
+
+        if (getLastUpdateTimeDifference(sortType) > 60 ){//* 60 * 1000) {
+            initNetworkRequests();
+        }
+
+        return new CursorLoader(this, MovieContract.MovieEntry.CONTENT_URI,
+                MovieContract.columnsArray, MovieContract.getSelectonForSort(sortType),
+                null, MovieContract.getOrderForSort(sortType));
+    }
+
+    private long getLastUpdateTimeDifference(int sort) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        long lastTimeStamp;
+        if (sort == MoviesListLoader.SORT_BY_POPULARITY) {
+            lastTimeStamp = preferences.getLong(KEY_LAST_POPULAR_UPDATE_TIME, 0);
+        } else {
+            lastTimeStamp = preferences.getLong(KEY_LAST_HIGHEST_UPDATE_TIME, 0);
+        }
+        return (new Date()).getTime() - lastTimeStamp;
     }
 
     @Override
@@ -226,7 +247,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoaderReset(@NonNull android.support.v4.content.Loader<Cursor> loader) {
-
+        adapter.updateList(null);
     }
 
     @Override
@@ -257,5 +278,11 @@ public class MainActivity extends AppCompatActivity
     public void changeOrderTo(int sortType) {
         this.sortType = sortType;
         loadMovieData();
+    }
+
+    private void initNetworkRequests() {
+        Intent intent = new Intent(getApplicationContext(), MoviesListLoader.class);
+        intent.putExtra(MoviesListLoader.KEY_SORT, sortType);
+        startService(intent);
     }
 }

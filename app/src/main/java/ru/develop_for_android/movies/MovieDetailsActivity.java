@@ -1,5 +1,6 @@
 package ru.develop_for_android.movies;
 
+import android.content.ContentValues;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +19,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import ru.develop_for_android.movies.data_structures.Movie;
+import ru.develop_for_android.movies.data_structures.MovieContract;
 import ru.develop_for_android.movies.data_structures.Review;
 import ru.develop_for_android.movies.data_structures.YoutubeVideo;
 import ru.develop_for_android.movies.databinding.ActivityMovieDetailsBinding;
@@ -118,13 +120,18 @@ public class MovieDetailsActivity extends AppCompatActivity implements
     }
 
     public void starMovie(View view) {
+        ContentValues values = new ContentValues();
         if (movie.starred) {
             makeFabCommon();
-            movie.saveUnstarredMovie(getBaseContext());
+            movie.starred = false;
+            values.put(MovieContract.MovieEntry.COLUMN_STARRED, 0);
         } else {
             makeFabAccented();
-            movie.saveStarredMovie(getBaseContext());
+            movie.starred = true;
+            values.put(MovieContract.MovieEntry.COLUMN_STARRED, 1);
         }
+        getContentResolver().update(MovieContract.MovieEntry.CONTENT_URI, values,
+                MovieContract.MovieEntry._ID + " = ?", new String[]{String.valueOf(movie.id)});
     }
 
     @NonNull

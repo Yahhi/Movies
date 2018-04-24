@@ -9,7 +9,7 @@ import static ru.develop_for_android.movies.data_structures.MovieContract.MovieE
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "movies";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     private static DBHelper helper;
 

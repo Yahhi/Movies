@@ -5,11 +5,46 @@ import android.provider.BaseColumns;
 
 import java.util.HashMap;
 
+import ru.develop_for_android.movies.MoviesListLoader;
+
 public class MovieContract {
     public static final String CONTENT_AUTHORITY = "ru.develop-for-android.movies";
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String PATH_MOVIES = "movies";
+
+    public static String getSelectonForSort(int sortType) {
+        String selection;
+        switch (sortType) {
+            case MoviesListLoader.SORT_BY_POPULARITY:
+                selection = MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST + " > 0";
+                break;
+            case MoviesListLoader.SORT_BY_RATE:
+                selection = MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST + " > 0";
+                break;
+            default:
+                selection = MovieEntry.COLUMN_STARRED + " > 0";
+        }
+        return selection;
+    }
+
+    public static String getOrderForSort(int sortType) {
+        String ordering;
+        switch (sortType) {
+            case MoviesListLoader.SORT_BY_POPULARITY:
+                ordering = MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST;
+                break;
+            case MoviesListLoader.SORT_BY_RATE:
+                ordering = MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST;
+                break;
+            default:
+                ordering = MovieEntry.COLUMN_TITLE;
+        }
+        return ordering;
+    }
+
+
+
     public static final class MovieEntry implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_MOVIES)
@@ -69,9 +104,9 @@ public class MovieContract {
     }
 
     static final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-            MovieEntry._ID + " INTEGER PRIMARY KEY, " +
+            MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             MovieEntry.COLUMN_TITLE + " TEXT, " +
-            MovieEntry.COLUMN_ADULT + " INTEGER, " +
+            MovieEntry.COLUMN_ADULT + " INTEGER DEFAULT 0, " +
             MovieEntry.COLUMN_OVERVIEW + " TEXT, " +
             MovieEntry.COLUMN_POSTER_PATH + " TEXT, " +
             MovieEntry.COLUMN_RELEASE_DATE + " INTEGER, " +
