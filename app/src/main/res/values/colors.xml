@@ -2,10 +2,11 @@
 <resources>
     <color name="colorPrimary">#3e2723</color>
     <color name="colorPrimaryDark">#1b0000</color>
+    <color name="colorPrimaryLight">#6a4f4b</color>
     <color name="signsOnPrimary">#FFFFFF</color>
-    <color name="colorSecondary">#ffa726</color>
-    <color name="colorSecondaryDark">#c77800</color>
-    <color name="colorSecondaryLight">#ffd95b</color>
+    <color name="colorSecondary">#ff8f00</color>
+    <color name="colorSecondaryDark">#c56000</color>
+    <color name="colorSecondaryLight">#ffc046</color>
     <color name="colorSignsOnSecondary">#000000</color>
     <color name="colorAccent">#ff5722</color>
     <color name="colorGrey">#bfbfbf</color>

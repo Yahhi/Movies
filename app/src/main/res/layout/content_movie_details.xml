@@ -7,6 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:background="@color/colorPrimaryLight"
     tools:context="ru.develop_for_android.movies.MovieDetailsActivity"
     tools:showIn="@layout/activity_movie_details" >
 

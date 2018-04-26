@@ -191,6 +191,10 @@ public class Movie implements Parcelable{
         return String.valueOf(voteCount);
     }
 
+    public String getOverview() {
+        return overview;
+    }
+
     public static String getBackdropPath(JSONObject object) {
         String path;
         try {
