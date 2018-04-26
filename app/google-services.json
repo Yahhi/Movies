@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "388698601399",
+    "firebase_url": "https://movies-russian-edition.firebaseio.com",
+    "project_id": "movies-russian-edition",
+    "storage_bucket": "movies-russian-edition.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388698601399:android:71d770a8dfed3814",
+        "android_client_info": {
+          "package_name": "ru.develop_for_android.movies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "388698601399-6f6obq33lhn408si60c79mt6q6v9497f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.develop_for_android.movies",
+            "certificate_hash": "a34cff3e46de23d77a438dcad14d332fb1907dff"
+          }
+        },
+        {
+          "client_id": "388698601399-b07ri1ir081mkc7nhe3pe4idimlggdaq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuiaqdfCg_1CDeAQPhiYqaUyS-VATvlmU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "388698601399-b07ri1ir081mkc7nhe3pe4idimlggdaq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
