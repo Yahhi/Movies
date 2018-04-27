@@ -3,8 +3,11 @@ package ru.develop_for_android.movies;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -50,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     private static final int MOVIE_LOADER_ID = 110;
     private static final int REQUEST_DETAILS = 501;
 
-    private static final int REFRESH_INTERVAL = 60;// * 60 * 1000;
+    private static final int REFRESH_INTERVAL = 60 * 60 * 1000;
 
     private int sortType;
     private int pagePopularity = 1;
@@ -65,6 +68,7 @@ public class MainActivity extends AppCompatActivity
     GridLayoutManager recyclerViewLayoutManager;
 
     MovieScrollListener listener;
+    private MyObserver myObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +98,8 @@ public class MainActivity extends AppCompatActivity
         if (getLastUpdateTimeDifference(sortType) > REFRESH_INTERVAL) {
             pageHighest = 1;
             pagePopularity = 1;
-            initNetworkRequests(SORT_BY_POPULARITY);
-            initNetworkRequests(SORT_BY_RATE);
+            initNetworkRequest(SORT_BY_POPULARITY);
+            initNetworkRequest(SORT_BY_RATE);
         } else {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             pagePopularity = preferences.getInt(KEY_LAST_HIGHEST_UPDATED_PAGE, 1);
@@ -170,9 +174,19 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
+        if (myObserver == null) {
+            myObserver = new MyObserver(new Handler());
+            getContentResolver().registerContentObserver(MovieContract.MovieEntry.CONTENT_URI, true, myObserver);
+        }
+
         if (listState != null) {
             recyclerViewLayoutManager.onRestoreInstanceState(listState);
         }
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        getContentResolver().unregisterContentObserver(myObserver);
     }
 
     private void fetchSettings() {
@@ -233,6 +247,7 @@ public class MainActivity extends AppCompatActivity
             loadingIndicator.setVisibility(View.GONE);
             Timber.i("cursor is loaded");
             adapter.updateList(data);
+            listener.listIsReloaded();
             if (listState != null) {
                 recyclerViewLayoutManager.onRestoreInstanceState(listState);
             }
@@ -258,6 +273,10 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_clear) {
             getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI, null, null);
+            pageHighest = 1;
+            pagePopularity = 1;
+            initNetworkRequest(SORT_BY_POPULARITY);
+            initNetworkRequest(SORT_BY_RATE);
             return true;
         } else if (id == R.id.action_invite_people) {
             onInviteClicked();
@@ -334,7 +353,7 @@ public class MainActivity extends AppCompatActivity
         loadMovieData();
     }
 
-    private void initNetworkRequests(int sortBy) {
+    private void initNetworkRequest(int sortBy) {
         Timber.i("send request to load more");
         Intent intent = new Intent(getApplicationContext(), MoviesListLoader.class);
         intent.putExtra(MoviesListLoader.KEY_SORT, sortBy);
@@ -355,8 +374,27 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     Timber.i("highest. want to load more with %d", pageHighest);
                 }
-                initNetworkRequests(sortType);
+                initNetworkRequest(sortType);
             }
         }
+    }
+
+    class MyObserver extends ContentObserver {
+
+        MyObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override public void onChange(boolean selfChange) {
+            super.onChange(selfChange, null);
+        }
+
+        @Override public void onChange(boolean selfChange, Uri uri) {
+            Timber.i("weeeeeee");
+            Bundle loadingBundle = new Bundle();
+            loadingBundle.putInt(KEY_SORT_TYPE, sortType);
+            getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, loadingBundle, dataManager);
+        }
+
     }
 }
