@@ -18,5 +18,6 @@
     <string name="info">Info</string>
     <string name="video">Video</string>
     <string name="reviews">Reviews</string>
+    <string name="clear_db">Clear db</string>
 
 </resources>

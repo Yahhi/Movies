@@ -3,11 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="ru.develop_for_android.movies.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_clear"
+        android:icon="@drawable/ic_refresh"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        android:icon="@drawable/ic_settings"
-        app:showAsAction="never" />
+        android:title="@string/clear_db"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_invite_people"
         android:orderInCategory="110"

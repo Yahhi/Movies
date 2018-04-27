@@ -74,6 +74,7 @@ public class MovieProvider extends ContentProvider {
                 }
                 if (rawsProcessed > 0 ) {
                     getContext().getContentResolver().notifyChange(uri, null);
+                    Timber.i("bulkInsert finished with %d raws", rawsProcessed);
                 }
                 return rawsProcessed;
             default:
@@ -99,7 +100,13 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        throw new RuntimeException("We are not implementing delete");
+        SQLiteDatabase database = DBHelper.getHelper(getContext()).getWritableDatabase();
+        int deletedRawsCount = database.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+        if (deletedRawsCount > 0 ) {
+            getContext().getContentResolver().notifyChange(uri, null);
+            Timber.i("Delete request finished with %d", deletedRawsCount);
+        }
+        return deletedRawsCount;
     }
 
     @Override
@@ -107,8 +114,11 @@ public class MovieProvider extends ContentProvider {
         SQLiteDatabase database = DBHelper.getHelper(getContext()).getWritableDatabase();
         switch (matcher.match(uri)) {
             case CODE_MOVIES:
-                return database.update(MovieContract.MovieEntry.TABLE_NAME, values, selection,
+                int updatedRaws = database.update(MovieContract.MovieEntry.TABLE_NAME, values, selection,
                         selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                Timber.i("Update request finished with %d", updatedRaws);
+                return updatedRaws;
             default:
                 return 0;
 

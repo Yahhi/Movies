@@ -36,12 +36,16 @@ public class MoviesListLoader extends IntentService {
     private static final String PARAM_API_KEY = "api_key";
     private static final String PARAM_LANG = "language";
     private static final String PARAM_REGION = "region";
+    private static final String PARAM_PAGE = "page";
 
     private static final String PARAM_RESULTS = "results";
 
     public static final String KEY_SORT = "sort";
+    public static final String KEY_PAGE = "page";
     static final String KEY_LAST_HIGHEST_UPDATE_TIME = "last_highest_update_time";
     static final String KEY_LAST_POPULAR_UPDATE_TIME = "last_popular_update_time";
+    static final String KEY_LAST_HIGHEST_UPDATED_PAGE = "highest_last_page";
+    static final String KEY_LAST_POPULAR_UPDATED_PAGE = "popular_last_page";
 
     public MoviesListLoader() {
         super("listLoader");
@@ -50,15 +54,16 @@ public class MoviesListLoader extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent == null) {
-            updateMoviesList(SORT_BY_POPULARITY);
-            updateMoviesList(SORT_BY_RATE);
+            updateMoviesList(SORT_BY_POPULARITY, 1);
+            updateMoviesList(SORT_BY_RATE, 1);
         } else {
             int sortType = intent.getIntExtra(KEY_SORT, SORT_BY_POPULARITY);
-            updateMoviesList(sortType);
+            int page = intent.getIntExtra(KEY_PAGE, 1);
+            updateMoviesList(sortType, page);
         }
     }
 
-    public void updateMoviesList(int sortType) {
+    public void updateMoviesList(int sortType, int page) {
         String path;
         if (sortType == SORT_BY_POPULARITY) {
             path = "3/movie/popular";
@@ -69,21 +74,25 @@ public class MoviesListLoader extends IntentService {
                 .scheme(protocol)
                 .authority(serverAddress)
                 .path(path)
-                .appendQueryParameter(PARAM_API_KEY, "39febaf8987f861995fb32be2e629e25")
+                .appendQueryParameter(PARAM_API_KEY, getString(R.string.mdb_key))
                 .appendQueryParameter(PARAM_LANG, Locale.getDefault().getISO3Language().substring(0, 2))
                 .appendQueryParameter(PARAM_REGION, Locale.getDefault().getISO3Country().substring(0, 2))
+                .appendQueryParameter(PARAM_PAGE, String.valueOf(page))
                 .build();
 
         Timber.i("start loading url: %s", uri.toString());
         try {
             ContentValues values = new ContentValues();
             String whereString;
+            int firstLoadedPosition = (page - 1) * 20 + 1;
             if (sortType == SORT_BY_POPULARITY) {
                 values.put(MovieContract.MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST, 0);
-                whereString = MovieContract.MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST + " > 0";
+                whereString = MovieContract.MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST + " >= "
+                        + firstLoadedPosition;
             } else {
                 values.put(MovieContract.MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST, 0);
-                whereString = MovieContract.MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST + " > 0";
+                whereString = MovieContract.MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST + " >= "
+                        + firstLoadedPosition;
             }
             getContentResolver().update(MovieContract.MovieEntry.CONTENT_URI, values,
                     whereString, null);
@@ -97,19 +106,28 @@ public class MoviesListLoader extends IntentService {
                     JSONObject movieObject = results.getJSONObject(i);
                     Movie movie = new Movie(movieObject);
                     valuesToInsert[i] = movie.getContentValues();
+                    int positionInList = firstLoadedPosition + i;
                     if (sortType == SORT_BY_POPULARITY) {
-                        valuesToInsert[i].put(MovieContract.MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST, i + 1);
+                        valuesToInsert[i].put(MovieContract.MovieEntry.COLUMN_ORDER_IN_POPULAR_LIST,
+                                positionInList);
                     } else {
-                        valuesToInsert[i].put(MovieContract.MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST, i + 1);
+                        valuesToInsert[i].put(MovieContract.MovieEntry.COLUMN_ORDER_IN_HIGHEST_LIST,
+                                positionInList);
                     }
                 }
                 int result = getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, valuesToInsert);
 
                 SharedPreferences.Editor preferenceEditor = PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit();
                 if (sortType == SORT_BY_POPULARITY) {
-                    preferenceEditor.putLong(KEY_LAST_POPULAR_UPDATE_TIME, new Date().getTime());
+                    if (page == 1) {
+                        preferenceEditor.putLong(KEY_LAST_POPULAR_UPDATE_TIME, new Date().getTime());
+                    }
+                    preferenceEditor.putInt(KEY_LAST_POPULAR_UPDATED_PAGE, page);
                 } else {
-                    preferenceEditor.putLong(KEY_LAST_HIGHEST_UPDATE_TIME, new Date().getTime());
+                    if (page == 1) {
+                        preferenceEditor.putLong(KEY_LAST_HIGHEST_UPDATE_TIME, new Date().getTime());
+                    }
+                    preferenceEditor.putInt(KEY_LAST_POPULAR_UPDATED_PAGE, page);
                 }
                 preferenceEditor.apply();
 
