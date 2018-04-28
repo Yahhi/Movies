@@ -38,6 +38,7 @@ public class MovieProvider extends ContentProvider {
                 Timber.i("request to select with args: selection='%s' and sortOrder='%s'", selection, sortOrder);
                 cursor = database.query(MovieContract.MovieEntry.TABLE_NAME, projection, selection,
                         selectionArgs, null, null, null);
+                cursor.setNotificationUri(getContext().getContentResolver(), uri);
                 Timber.i("cursor size %d", cursor.getCount());
                 break;
             default:

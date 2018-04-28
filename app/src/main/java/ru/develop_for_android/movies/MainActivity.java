@@ -3,11 +3,8 @@ package ru.develop_for_android.movies;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -68,7 +65,7 @@ public class MainActivity extends AppCompatActivity
     GridLayoutManager recyclerViewLayoutManager;
 
     MovieScrollListener listener;
-    private MyObserver myObserver;
+    //private MyObserver myObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,10 +171,10 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        if (myObserver == null) {
+        /*if (myObserver == null) {
             myObserver = new MyObserver(new Handler());
             getContentResolver().registerContentObserver(MovieContract.MovieEntry.CONTENT_URI, true, myObserver);
-        }
+        }*/
 
         if (listState != null) {
             recyclerViewLayoutManager.onRestoreInstanceState(listState);
@@ -186,7 +183,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override protected void onPause() {
         super.onPause();
-        getContentResolver().unregisterContentObserver(myObserver);
+        //getContentResolver().unregisterContentObserver(myObserver);
     }
 
     private void fetchSettings() {
@@ -379,7 +376,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    class MyObserver extends ContentObserver {
+    /*class MyObserver extends ContentObserver {
 
         MyObserver(Handler handler) {
             super(handler);
@@ -395,6 +392,5 @@ public class MainActivity extends AppCompatActivity
             loadingBundle.putInt(KEY_SORT_TYPE, sortType);
             getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, loadingBundle, dataManager);
         }
-
-    }
+    }*/
 }
