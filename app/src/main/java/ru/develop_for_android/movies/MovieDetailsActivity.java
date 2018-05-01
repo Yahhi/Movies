@@ -76,7 +76,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         tabAdapter = new MovieDetailsTabAdapter(getSupportFragmentManager(), movie);
         ViewPager viewPager = binding.contentMovieDetails.tabsView;
         viewPager.setAdapter(tabAdapter);
-        this.setTitle(movie.title);
+        binding.toolbarLayout.setTitle(movie.title);
 
         if (movie.starred) {
             makeFabAccented();
